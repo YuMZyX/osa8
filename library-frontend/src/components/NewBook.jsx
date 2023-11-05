@@ -9,16 +9,18 @@ const NewBook = (props) => {
   const [published, setPublished] = useState('')
   const [genre, setGenre] = useState('')
   const [genres, setGenres] = useState([])
-  const [error, setError] = useState(null)
 
   const [addBook] = useMutation(ADD_BOOK, {
     refetchQueries: [ {query: ALL_AUTHORS}, {query: ALL_BOOKS} ],
     onError: (error) => {
-      const messages = error.graphQLErrors.map(e => e.message).join('\n')
-      setError(messages)
-      setTimeout(() => {
-        setError(null)
-      }, 4000)
+      props.setError(error.graphQLErrors[0].message)
+    },
+    update: (cache, response) => {
+      cache.updateQuery({ query: ALL_BOOKS }, ({ allBooks }) => {
+        return {
+          allBooks: allBooks.concat(response.data.addBook)
+        }
+      })
     }
   })
 
@@ -30,7 +32,9 @@ const NewBook = (props) => {
     event.preventDefault()
     const publishedAsInt = parseInt(published)
 
-    addBook({ variables: { title, author, published: publishedAsInt, genres } })
+    addBook({ variables: { 
+      title, published: publishedAsInt, genres,
+      author: author } })
 
     setTitle('')
     setPublished('')
@@ -46,24 +50,24 @@ const NewBook = (props) => {
 
   return (
     <div>
-      {error !== null ? error : ''}
+      <br />
       <form onSubmit={submit}>
         <div>
-          title
+          title: 
           <input
             value={title}
             onChange={({ target }) => setTitle(target.value)}
           />
         </div>
         <div>
-          author
+          author: 
           <input
             value={author}
             onChange={({ target }) => setAuthor(target.value)}
           />
         </div>
         <div>
-          published
+          published: 
           <input
             type="number"
             value={published}

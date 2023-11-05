@@ -1,6 +1,6 @@
 import { useQuery } from "@apollo/client"
 import { ALL_AUTHORS, UPDATE_AUTHOR } from "../queries"
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useMutation } from '@apollo/client'
 import Select from 'react-select'
 
@@ -8,17 +8,21 @@ const Authors = (props) => {
   const [name, setName] = useState(null)
   const [born, setBorn] = useState('')
   const authors = useQuery(ALL_AUTHORS)
-  const[updateAuthor] = useMutation(UPDATE_AUTHOR)
+  const[updateAuthor, result] = useMutation(UPDATE_AUTHOR)
 
   const submit = async (event) => {
     event.preventDefault()
     const bornAsInt = parseInt(born)
-
     updateAuthor({ variables: { name: name.value, setBornTo: bornAsInt } })
-
     setName(null)
     setBorn('')
   }
+
+  useEffect(() => {
+    if (result.data && result.data.editAuthor === null) {
+      props.setError('Author not found')
+    }
+  })
 
   if (!props.show) {
     return null
@@ -52,6 +56,8 @@ const Authors = (props) => {
         </tbody>
       </table>
       <br />
+      {props.token === true ?
+      <div>
       <h4>Set birthyear:</h4>
       <form onSubmit={submit}>
         <div style={{ width: '300px' }}>
@@ -67,6 +73,9 @@ const Authors = (props) => {
         </div>
         <button type="submit">Update author</button>
       </form>
+      </div>
+      : <div></div>
+      }
     </div>
   )
 }
