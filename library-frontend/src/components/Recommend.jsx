@@ -5,12 +5,12 @@ import { useEffect, useState } from "react"
 const Recommend = (props) => {
   const [genre, setGenre] = useState(null)
   const user = useQuery(ME, {
-    fetchPolicy: 'cache-and-network'
+    //fetchPolicy: 'cache-and-network'
   })
   const recommendBooks = useQuery(GENRE_BOOKS, {
     skip: !genre,
     variables: { genre },
-    fetchPolicy: 'cache-and-network'
+    //fetchPolicy: 'cache-and-network'
   })
 
   useEffect(() => {

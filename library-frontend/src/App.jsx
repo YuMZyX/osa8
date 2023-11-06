@@ -1,4 +1,4 @@
-import { useApolloClient } from '@apollo/client'
+import { useApolloClient, useSubscription } from '@apollo/client'
 
 import { useState } from 'react'
 import Authors from './components/Authors'
@@ -8,12 +8,36 @@ import LoginForm from './components/LoginForm'
 import Notify from './components/Notify'
 import Recommend from './components/Recommend'
 
+import { BOOK_ADDED, ALL_BOOKS } from './queries'
+
+export const updateCache = (cache, query, addedBook) => { // eslint-disable-line
+  const uniqByName = (a) => {
+    let seen = new Set()
+    return a.filter((item) => {
+      let k = item.name
+      return seen.has(k) ? false : seen.add(k)
+    })
+  }
+  cache.updateQuery(query, ({ allBooks }) => {
+    return {
+      allBooks: uniqByName(allBooks.concat(addedBook)),
+    }
+  })
+}
+
 const App = () => {
   const [page, setPage] = useState('authors')
   const [errorMessage, setErrorMessage] = useState(null)
   const [token, setToken] = useState(null)
-
   const client = useApolloClient()
+
+  useSubscription(BOOK_ADDED, {
+    onData: ({ data, client }) => {
+      const addedBook = data.data.bookAdded
+      notify(`${addedBook.title} added`)
+      updateCache(client.cache, { query: ALL_BOOKS }, addedBook)
+    },
+  })
 
   const notify = (message) => {
     setErrorMessage(message)

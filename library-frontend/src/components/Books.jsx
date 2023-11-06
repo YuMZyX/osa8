@@ -5,7 +5,7 @@ import { useState } from "react"
 
 const Books = (props) => {
   const options = [
-    { value: null, label: 'All genres' },
+    { value: 'all_genres', label: 'All genres' },
     { value: 'refactoring', label: 'Refactoring' },
     { value: 'agile', label: 'Agile' },
     { value: 'patterns', label: 'Patterns' },
@@ -13,16 +13,17 @@ const Books = (props) => {
     { value: 'crime', label: 'Crime' },
     { value: 'classic', label: 'Classic' },
     { value: 'testing', label: 'Testing' },
-    { value: 'fantasy', label: 'Fantasy' }
+    { value: 'fantasy', label: 'Fantasy' },
+    { value: 'horror', label: 'Horror' }
   ]
   const [genre, setGenre] = useState(options)
   const books = useQuery(ALL_BOOKS, {
-    fetchPolicy: 'cache-and-network'
+    //fetchPolicy: 'cache-and-network'
   })
   const genreBooks = useQuery(GENRE_BOOKS, {
-    skip: !genre.value,
+    skip: !genre.value || genre.value === 'all_genres',
     variables: { genre: genre.value },
-    fetchPolicy: 'cache-and-network'
+    //fetchPolicy: 'cache-and-network'
   })
 
   if (!props.show) {
@@ -32,7 +33,7 @@ const Books = (props) => {
     return <div>loading...</div>
   }
 
-  if (genre.value && genreBooks.data) {
+  if (genre.value && genreBooks.data && genre.value !== 'all_genres') {
     return (
       <div>
         <h2>books</h2>
