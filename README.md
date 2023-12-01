@@ -1,4 +1,4 @@
-# Full Stack Open - Part 8
+# Full Stack Open - Part 8 (GraphQL)
 
 1. GraphQL-server
 
